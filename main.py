@@ -162,7 +162,7 @@ def check_for_updates(initial_run, script_start_time):
                             if note_date_submitted > last_saved_date:
                                 # Create MSMQ message label
                                 project_name = detailed_issue.project.name
-                                label = f"{project_name} - Issue #{issue.id} - {issue.summary} - Priority: {issue.priority.name} - Severity: {issue.severity.name} - Resolution: {issue.resolution.name}"
+                                label = f"{project_name} - Issue #{issue.id} - {issue.summary}"
 
                                 # Get the assignee's email if available
                                 assignee_email = getattr(detailed_issue.handler, 'email',
@@ -170,13 +170,17 @@ def check_for_updates(initial_run, script_start_time):
 
                                 # Create MSMQ message body
                                 body = (
-                                    f"A new work note added in the ticket #{issue.id} at {note_date_submitted}\n"
+                                    f"A new work note added in the issue #{issue.id} at {note_date_submitted} by { note.reporter.name} {reporter_email}\n "
                                     f"\n"
-                                    f"Work note (new): {note.text}\n"
-                                    f"\n"
-                                    f"Work note added by: {note.reporter.name} ({reporter_email})\n"
+                                    f" \"{note.text}\"\n"
                                     f"\n"
                                     f"Issue assigned to: {assignee_email}\n"
+                                    f"\n"
+                                    f" Priority: {issue.priority.name}\n "
+                                    f"\n"
+                                    f"Severity: {issue.severity.name}\n"
+                                    f"\n"
+                                    f"Resolution: {issue.resolution.name}\n"
                                     f"\n"
                                     f"{attachments_info}"
                                 )
