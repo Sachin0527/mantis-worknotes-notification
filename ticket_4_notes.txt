@@ -1,0 +1,67 @@
+- administrator (2024-06-10 15:34:18+05:30): hello that
+- administrator (2024-06-05 14:58:23+05:30): Hi NOC
+
+
+
+The highlighted worker process is consuming max CPU(Refer SS below).
+
+
+
+Worker process dump is collected and placed in - D:\wsod\Logs\iis\INC16754059 on the server. Please collect and delete the same from the said location
+
+
+
+Please confirm if any action is required. Moving the ticket to the "Pending - Awaiting for Customer Action" state.
+
+
+
+Meanwhile, we will continue to observe the server CPU usage.
+- administrator (2024-06-05 14:57:13+05:30): CI affected : MD-WWWP818J
+
+Incident Understanding : Incident triggered due to high CPU Usage on the server
+
+Diagnosis Steps: Checking CPU Usage on the server....
+- administrator (2024-06-05 14:58:23+05:30): Hi NOC
+
+
+
+The highlighted worker process is consuming max CPU(Refer SS below).
+
+
+
+Worker process dump is collected and placed in - D:\wsod\Logs\iis\INC16754059 on the server. Please collect and delete the same from the said location
+
+
+
+Please confirm if any action is required. Moving the ticket to the "Pending - Awaiting for Customer Action" state.
+
+
+
+Meanwhile, we will continue to observe the server CPU usage.
+- administrator (2024-06-05 14:57:13+05:30): CI affected : MD-WWWP818J
+
+Incident Understanding : Incident triggered due to high CPU Usage on the server
+
+Diagnosis Steps: Checking CPU Usage on the server....
+- administrator (2024-06-05 14:58:23+05:30): Hi NOC
+
+
+
+The highlighted worker process is consuming max CPU(Refer SS below).
+
+
+
+Worker process dump is collected and placed in - D:\wsod\Logs\iis\INC16754059 on the server. Please collect and delete the same from the said location
+
+
+
+Please confirm if any action is required. Moving the ticket to the "Pending - Awaiting for Customer Action" state.
+
+
+
+Meanwhile, we will continue to observe the server CPU usage.
+- administrator (2024-06-05 14:57:13+05:30): CI affected : MD-WWWP818J
+
+Incident Understanding : Incident triggered due to high CPU Usage on the server
+
+Diagnosis Steps: Checking CPU Usage on the server....
