@@ -23,7 +23,8 @@ def get_connection():
     return connection
 
 
-def fetch_attachments(attachment_id, bug_id, bug_note_id= None):
+def fetch_attachments(attachment_id, bug_id, bug_note_id=None):
+    print(attachment_id)
     try:
         # Connect to the database
         connection = get_connection()
@@ -43,20 +44,20 @@ def fetch_attachments(attachment_id, bug_id, bug_note_id= None):
             if not attachments:
                 return "No attachments found for the given criteria."
             else:
+                results = []
                 for attachment in attachments:
                     filename = attachment['filename']
                     content = attachment['content']
                     image = Image.open(io.BytesIO(content))
 
                     # Save the image as PNG
-                    image.save(filename, format='PNG')
-                    return f"Image saved as {filename}"
+                    image.save("attachments//" +filename, format='PNG')
+                    results.append(f"Image saved as {filename}")
+                return results
     except pymysql.Error as e:
         print(f"Error accessing database: {e}")
     finally:
         if connection:
             connection.close()
 
-
-# Example usage: Replace issue_id with your specific issue ID
 print(fetch_attachments(1,1,8))
