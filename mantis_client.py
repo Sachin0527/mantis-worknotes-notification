@@ -1,10 +1,14 @@
 import requests
+import json
 from abc import ABC, abstractmethod
 
+# Read the JSON file
+with open('config.json', 'r') as file:
+    config = json.load(file)
+
 # Configuration
-# Configuration
-mantis_base_url = 'http://localhost:8086/mantis'
-api_token = 'wd3tBpvAmpVRfqM8_nPg7T3cxxBw4KMs'  # Replace with your API token
+mantis_base_url = ['mantis_base_url']
+api_token = config['api_token'] # Replace with your API token
 
 # Headers for REST API requests
 headers = {

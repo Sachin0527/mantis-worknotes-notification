@@ -1,15 +1,16 @@
+import os
 import io
 import json
 import pymysql
 from PIL import Image
 
+# Define the base folder path for saving attachments
+BASE_ATTACHMENTS_FOLDER = "attachments"
 
 def get_connection():
     # Read the JSON file
     with open('config.json', 'r') as file:
         config = json.load(file)
-
-    config['cursorclass'] = pymysql.cursors.DictCursor
 
     # Connect to the database using the configuration
     connection = pymysql.connect(
@@ -18,13 +19,11 @@ def get_connection():
         password=config['password'],
         database=config['database'],
         charset=config['charset'],
-        cursorclass=config['cursorclass']
+        cursorclass=pymysql.cursors.DictCursor
     )
     return connection
 
-
 def fetch_attachments(attachment_id, bug_id, bug_note_id=None):
-    print(attachment_id)
     try:
         # Connect to the database
         connection = get_connection()
@@ -50,9 +49,15 @@ def fetch_attachments(attachment_id, bug_id, bug_note_id=None):
                     content = attachment['content']
                     image = Image.open(io.BytesIO(content))
 
-                    # Save the image as PNG
-                    image.save("attachments//" +filename, format='PNG')
-                    results.append(f"Image saved as {filename}")
+                    # Create directories if they do not exist
+                    bug_folder = os.path.join(BASE_ATTACHMENTS_FOLDER, f"bug_{bug_id}")
+                    note_folder = os.path.join(bug_folder, f"note_{bug_note_id}") if bug_note_id else bug_folder
+                    os.makedirs(note_folder, exist_ok=True)
+
+                    # Save the image as PNG in the appropriate folder
+                    save_path = os.path.join(note_folder, filename)
+                    image.save(save_path, format='PNG')
+                    results.append(f"Image saved as {save_path}")
                 return results
     except pymysql.Error as e:
         print(f"Error accessing database: {e}")

@@ -1,9 +1,10 @@
 {
-    "url": "http://localhost:8086/mantis",
-    "token": "wd3tBpvAmpVRfqM8_nPg7T3cxxBw4KMs",
+    "mantis_base_url": "http://localhost:8086/mantis",
+    "api_token": "wd3tBpvAmpVRfqM8_nPg7T3cxxBw4KMs",
     "host": "localhost",
     "user": "root",
     "password": "root",
     "database": "bugtracker",
-    "charset": "utf8mb4"
+    "charset": "utf8mb4",
+    "queue_path": ".\\Private$\\myqueue"
 }
