@@ -8,7 +8,7 @@ with open('config.json', 'r') as file:
 
 # Configuration
 mantis_base_url = ['mantis_base_url']
-api_token = config['api_token'] # Replace with your API token
+api_token = config['api_token']# Replace with your API token
 
 # Headers for REST API requests
 headers = {
