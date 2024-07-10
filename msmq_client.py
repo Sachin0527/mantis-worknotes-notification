@@ -1,15 +1,12 @@
 import win32com.client
-from abc import ABC, abstractmethod
 
-class MSMQClient(ABC):
-    @abstractmethod
-    def send_message(self, label, body):
-        pass
+from common import read_config
 
 
-class MSMQSender(MSMQClient):
-    def __init__(self, queue_path):
-        self.queue_path = queue_path
+class MSMQClient:
+    def __init__(self, config_file):
+        self.config_file = config_file
+        self.queue_path = read_config(config_file, 'msmq')['queue']
 
     def send_message(self, label, body):
         try:
@@ -21,5 +18,6 @@ class MSMQSender(MSMQClient):
             msg.Label = label
             msg.Send(queue)
             queue.Close()
+            print(f"Message '{label}' sent successfully to queue.")
         except Exception as e:
             print(f"Error sending message to MSMQ: {e}")

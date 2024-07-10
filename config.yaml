@@ -1,0 +1,20 @@
+mantis:
+    base_url: "http://localhost:8080/mantis"
+    api_token: ""
+    project_id: 1
+    time_zone: "Asia/Kolkata"
+    issue_fields: "id, summary, description, reporter.name,reporter.email,handler.name,handler.email, status.label, resolution.label, priority.label, severity.label"
+    work_notes_fields: "id, reporter.name,reporter.email, text"
+
+mysql:
+    host: "localhost"
+    user: "root"
+    password: ""
+    database: "bugtracker"
+    charset: "utf8mb4"
+
+msmq:
+    queue: ".\\Private$\\mantis_notification_queue"
+
+directory:
+    attachment_base_dir: "attachments"
