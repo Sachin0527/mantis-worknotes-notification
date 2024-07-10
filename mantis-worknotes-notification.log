@@ -1,0 +1,51 @@
+2024-07-10 23:27:27,649 - INFO - Sent issue to queue: Issue Id - 1 :: Issue 1 - Description Modified!!!
+2024-07-10 23:27:27,652 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note - 2
+2024-07-10 23:27:27,654 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: Work Note 3
+2024-07-10 23:27:27,655 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note 4 - modified..!!
+
+2024-07-10 23:27:27,657 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: test 5
+2024-07-10 23:27:27,659 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: TEST5
+2024-07-10 23:27:53,317 - ERROR - Error fetching data from Mantis API: BaseException.with_traceback() takes exactly one argument (0 given)
+2024-07-10 23:28:29,393 - INFO - Sent issue to queue: Issue Id - 1 :: Issue 1 - Description Modified!!!
+2024-07-10 23:28:29,396 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note - 2
+2024-07-10 23:28:29,398 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: Work Note 3
+2024-07-10 23:28:29,400 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note 4 - modified..!!
+
+2024-07-10 23:28:29,401 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: test 5
+2024-07-10 23:28:29,403 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: TEST5
+2024-07-10 23:30:45,849 - INFO - Sent issue to queue: Issue Id - 1 :: Issue 1 - Description Modified!!!
+2024-07-10 23:30:45,852 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note - 2
+2024-07-10 23:30:45,854 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: Work Note 3
+2024-07-10 23:30:45,855 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note 4 - modified..!!
+
+2024-07-10 23:30:45,857 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: test 5
+2024-07-10 23:30:45,859 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: TEST5
+2024-07-10 23:36:56,482 - INFO - Sent issue to queue: Issue Id - 1 :: Issue 1 - Description Modified!!!
+2024-07-10 23:36:56,486 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note - 2
+2024-07-10 23:36:56,488 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: Work Note 3
+2024-07-10 23:36:56,491 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note 4 - modified..!!
+
+2024-07-10 23:36:56,493 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: test 5
+2024-07-10 23:36:56,495 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: TEST5
+2024-07-10 23:43:34,816 - INFO - Sent issue to queue: Issue Id - 1 :: Issue 1 - Description Modified!!!
+2024-07-10 23:43:34,819 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note - 2
+2024-07-10 23:43:34,821 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: Work Note 3
+2024-07-10 23:43:34,822 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note 4 - modified..!!
+
+2024-07-10 23:43:34,824 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: test 5
+2024-07-10 23:43:34,825 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: TEST5
+2024-07-10 23:43:43,898 - INFO - Sent issue to queue: Issue Id - 1 :: Issue 1 - Description Modified!!!
+2024-07-10 23:43:43,901 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: test 5
+2024-07-10 23:43:43,903 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: TEST5
+2024-07-10 23:43:56,265 - INFO - Sent issue to queue: Issue Id - 1 :: Issue 1 - Description Modified!!!
+2024-07-10 23:43:56,268 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: Work Note 3
+2024-07-10 23:43:56,270 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note 4 - modified..!!
+
+2024-07-10 23:43:56,272 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: test 5
+2024-07-10 23:43:56,273 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: TEST5
+2024-07-10 23:45:22,335 - INFO - Sent issue to queue: Issue Id - 1 :: Issue 1 - Description Modified!!!
+2024-07-10 23:45:22,339 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: Work Note 3
+2024-07-10 23:45:22,340 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: work note 4 - modified..!!
+
+2024-07-10 23:45:22,342 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: test 5
+2024-07-10 23:45:22,343 - INFO - Sent note to queue: Issue Id - 1 :: Issue 1 - Description Modified!!! :: TEST5

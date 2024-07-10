@@ -18,3 +18,5 @@ msmq:
 
 directory:
     attachment_base_dir: "attachments"
+
+log_file_path: "mantis-worknotes-notification.log"

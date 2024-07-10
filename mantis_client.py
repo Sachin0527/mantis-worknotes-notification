@@ -5,6 +5,15 @@ from common import read_config
 from attachment_handler import AttachmentHandler
 
 
+def get_timestamp_from(time_zone, minutes):
+    current_utc_time = datetime.now(timezone.utc)
+    target_timezone = pytz.timezone(time_zone)
+    local_datetime = current_utc_time.astimezone(target_timezone)
+    timestamp_from = local_datetime - timedelta(minutes=minutes)
+    timestamp_from = datetime.strftime(timestamp_from, "%Y-%m-%d %H:%M:%S")
+    return timestamp_from
+
+
 def is_recently_updated(issue, timestamp_from):
     try:
         # Parse issue's last updated timestamp
@@ -80,70 +89,44 @@ class MantisClient():
     def api_call(self, page):
         try:
             url = f"{self.base_url}/api/rest/issues"
-            params = {
-                "project_id": self.project_id,
-                "page_size": 50,
-                "page": page
-            }
-            headers = self.setup_header()
-            response = requests.get(url, headers=headers, params=params)
+            params = {"project_id": self.project_id, "page_size": 50, "page": page}
+            response = requests.get(url, headers=self.setup_header(), params=params)
             response.raise_for_status()
             return response.json()['issues']
         except requests.exceptions.RequestException as e:
             print(e)
 
-    def fetch_recently_updated_issues(self, minutes=240):
+    def fetch_updated_since_timestamp_from(self, issues, timestamp_from):
+        updated_issues = []
+        updated_notes = []
+        for issue in issues:
+            if is_recently_updated(issue, timestamp_from):
+                issue_data = extract_fields(issue, self.issue_fields, "Issue ")
+                temp_attachments = self.get_attachment_details(issue['id'])
+                if temp_attachments:
+                    issue_data['Issue Attachments Path'] = temp_attachments
+                updated_issues.append(issue_data)
+                # Also fetch and process notes for this issue
+                notes = issue.get('notes', [])
+                for note in notes:
+                    if is_recently_updated(note, timestamp_from):
+                        note_data = extract_fields(note, self.work_notes_fields, "Work Note ")
+                        note_data.update(issue_data)
+                        del note_data['Issue Attachments Path']
+                        temp_attachments = self.get_attachment_details(issue['id'], note['id'])
+                        if temp_attachments:
+                            note_data['Work Note Attachments Path'] = temp_attachments
+                        updated_notes.append(note_data)
+        return updated_issues, updated_notes
+
+    def fetch_recently_updated_issues(self, minutes=1):
         try:
             # Fetch all issues
             all_issues = self.fetch_all_issues()
-            current_utc_time = datetime.now(timezone.utc)
-            target_timezone = pytz.timezone(self.time_zone)
-            local_datetime = current_utc_time.astimezone(target_timezone)
-            timestamp_from = local_datetime - timedelta(minutes=minutes)
-            timestamp_from = datetime.strftime(timestamp_from, "%Y-%m-%d %H:%M:%S")
-            # Filter issues updated within the last 1 minute
-            updated_issues = []
-            updated_notes = []
-            for issue in all_issues:
-                if is_recently_updated(issue, timestamp_from):
-                    issue_data = extract_fields(issue, self.issue_fields, "Issue ")
-                    temp_attachments = self.get_attachment_details(issue['id'])
-                    if temp_attachments:
-                        issue_data['Issue Attachments Path'] = temp_attachments
-                    updated_issues.append(issue_data)
-                    # Also fetch and process notes for this issue
-                    notes = issue.get('notes', [])
-                    for note in notes:
-                        if is_recently_updated(note, timestamp_from):
-                            note_data = extract_fields(note, self.work_notes_fields, "Work Note ")
-                            note_data.update(issue_data)
-                            del note_data['Issue Attachments Path']
-                            temp_attachments = self.get_attachment_details(issue['id'],note['id'])
-                            if temp_attachments:
-                                note_data['Work Note Attachments Path'] = temp_attachments
-                            updated_notes.append(note_data)
-            return updated_issues, updated_notes
+            timestamp_from = get_timestamp_from(self.time_zone, minutes)
+            # Filter issues updated within the last specified minutes time window
+            return self.fetch_updated_since_timestamp_from(all_issues, timestamp_from)
         except Exception as e:
             print(e.with_traceback())
             print(f"Failed to fetch recently updated issues: {e}")
             return []
-
-    def extract_updated_entities(self, updated_issues, one_minute_ago):
-        try:
-            updated_work_notes = []
-            updated_issues_list = []
-
-            for issue in updated_issues:
-                if 'updated_at' in issue or 'created_at' in issue:
-                    updated_issues_list.append(issue)
-
-                if 'notes' in issue:
-                    for note in issue['notes']:
-                        last_updated = note.get('updated_at', note.get('created_at'))
-                        if last_updated and is_recently_updated({"updated_at": last_updated}, one_minute_ago):
-                            updated_work_notes.append(note)
-
-            return updated_issues_list, updated_work_notes
-        except Exception as e:
-            print(f"Failed to extract updated entities: {e}")
-            return [], []

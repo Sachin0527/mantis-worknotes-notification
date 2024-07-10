@@ -75,9 +75,3 @@ class AttachmentHandler:
         finally:
             if connection:
                 connection.close()
-
-
-# Example usage:
-if __name__ == "__main__":
-    handler = AttachmentHandler("config.yaml")
-    print(handler.fetch_attachments(1,6))
