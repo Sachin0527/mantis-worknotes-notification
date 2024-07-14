@@ -1,7 +1,7 @@
 import os, io, pymysql
 from PIL import Image
 
-from common import read_config
+from src.config.config import MysqlConfig
 
 
 def get_attachments_from_db(connection, bug_id, bug_note_id=None):
@@ -21,20 +21,18 @@ def get_attachments_from_db(connection, bug_id, bug_note_id=None):
 
 
 class AttachmentHandler:
-    def __init__(self, config_file):
-        mysql_config = read_config(config_file, 'mysql')
-        self.config_file = config_file
-        self.config = mysql_config
-        self.attachment_base_dir = read_config(config_file, 'directory')['attachment_base_dir']
+    def __init__(self, mysql_config, attachment_base_dir):
+        self.__config = MysqlConfig(mysql_config)
+        self.__attachment_base_dir = attachment_base_dir
 
     def get_connection(self):
         # Connect to the database using the configuration
         connection = pymysql.connect(
-            host=self.config['host'],
-            user=self.config['user'],
-            password=self.config['password'],
-            database=self.config['database'],
-            charset=self.config['charset'],
+            host=self.__config.host,
+            user=self.__config.user,
+            password=self.__config. password,
+            database=self.__config.database,
+            charset=self.__config.charset,
             cursorclass=pymysql.cursors.DictCursor
         )
         return connection
@@ -48,7 +46,7 @@ class AttachmentHandler:
                 image = Image.open(io.BytesIO(content))
 
                 # Create directories if they do not exist
-                bug_folder = os.path.join(self.attachment_base_dir, f"bug_{bug_id}")
+                bug_folder = os.path.join(self.__attachment_base_dir, f"bug_{bug_id}")
                 note_folder = os.path.join(bug_folder, f"note_{bug_note_id}") if bug_note_id else bug_folder
                 os.makedirs(note_folder, exist_ok=True)
 

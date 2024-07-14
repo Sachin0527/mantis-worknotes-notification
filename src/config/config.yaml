@@ -1,10 +1,11 @@
 mantis:
     base_url: "http://localhost:8080/mantis"
-    api_token: ""
+    api_token: "VoZ4d_uyq7fX1mv5DZ4zqhyJbCL3peMv"
     project_id: 1
     time_zone: "Asia/Kolkata"
     issue_fields: "id, summary, description, reporter.name,reporter.email,handler.name,handler.email, status.label, resolution.label, priority.label, severity.label"
     work_notes_fields: "id, reporter.name,reporter.email, text"
+    filter_id: 12
 
 mysql:
     host: "localhost"
@@ -16,7 +17,10 @@ mysql:
 msmq:
     queue: ".\\Private$\\mantis_notification_queue"
 
-directory:
-    attachment_base_dir: "attachments"
+logging:
+    logging_file: 'logs/mantis_worknotes_notification.log'
+    logging_level: 'DEBUG'
+    logging_format: '%(asctime)s :: %(levelname)s :: %(message)s :: Message Source:- file-"%(module)s" & method-"%(funcName)s"'
 
-log_file_path: "mantis-worknotes-notification.log"
+attachment_base_dir: "attachments"
+

@@ -1,8 +1,8 @@
-import pytz
-import requests
+import pytz, requests
 from datetime import datetime, timedelta, timezone
-from common import read_config
-from attachment_handler import AttachmentHandler
+
+from src.config.config import MantisConfig
+from src.handlers.attachment_handler import AttachmentHandler
 
 
 def get_timestamp_from(time_zone, minutes):
@@ -49,35 +49,30 @@ def extract_fields(data, fields_to_extract, prefix):
     return issue_data
 
 
-class MantisClient():
-    def __init__(self, config_file):
-        self.config_file = config_file
-        self.config = read_config(config_file, 'mantis')
-        self.base_url = self.config['base_url']
-        self.api_token = self.config['api_token']
-        self.project_id = self.config['project_id']
-        self.time_zone = self.config['time_zone']
-        self.issue_fields = [field.strip() for field in self.config['issue_fields'].split(',')]
-        self.work_notes_fields = [field.strip() for field in self.config['work_notes_fields'].split(',')]
+class MantisClient:
+    def __init__(self, config):
+        self.__mantis_config = MantisConfig(config['mantis'])
+        self.__mysql_config = config['mysql']
+        self.__attachment_base_dir = config['attachment_base_dir']
 
-    def setup_header(self):
+    def __setup_header(self):
         # Headers for REST API requests
         headers = {
-            'Authorization': f'{self.api_token}',
+            'Authorization': f'{self.__mantis_config.api_token}',
             'Content-Type': 'application/json'
         }
         return headers
 
-    def get_attachment_details(self, bug_id, bug_note_id=None):
-        attachment_handler = AttachmentHandler(self.config_file)
+    def __get_attachment_details(self, bug_id, bug_note_id=None):
+        attachment_handler = AttachmentHandler(self.__mysql_config, self.__attachment_base_dir)
         return attachment_handler.fetch_attachments(bug_id, bug_note_id)
 
-    def fetch_all_issues(self):
+    def __fetch_all_issues(self):
         try:
             all_issues = []
             page = 1
             while True:
-                issues_on_current_page = self.api_call(page)
+                issues_on_current_page = self.__api_call(page)
                 if not issues_on_current_page:
                     break
                 all_issues.extend(issues_on_current_page)
@@ -86,23 +81,28 @@ class MantisClient():
         except requests.RequestException as e:
             print(e)
 
-    def api_call(self, page):
+    def __api_call(self, page):
         try:
-            url = f"{self.base_url}/api/rest/issues"
-            params = {"project_id": self.project_id, "page_size": 50, "page": page}
-            response = requests.get(url, headers=self.setup_header(), params=params)
+            url = f"{self.__mantis_config.base_url}/api/rest/issues"
+            params = {
+                "project_id": self.__mantis_config.project_id,
+                "page_size": 50,
+                "page": page,
+                "filter_id": self.__mantis_config.filter_id
+            }
+            response = requests.get(url, headers=self.__setup_header(), params=params)
             response.raise_for_status()
             return response.json()['issues']
         except requests.exceptions.RequestException as e:
             print(e)
 
-    def fetch_updated_since_timestamp_from(self, issues, timestamp_from):
+    def __fetch_updated_since_timestamp_from(self, issues, timestamp_from):
         updated_issues = []
         updated_notes = []
         for issue in issues:
             if is_recently_updated(issue, timestamp_from):
-                issue_data = extract_fields(issue, self.issue_fields, "Issue ")
-                temp_attachments = self.get_attachment_details(issue['id'])
+                issue_data = extract_fields(issue, self.__mantis_config.issue_fields, "Issue ")
+                temp_attachments = self.__get_attachment_details(issue['id'])
                 if temp_attachments:
                     issue_data['Issue Attachments Path'] = temp_attachments
                 updated_issues.append(issue_data)
@@ -110,10 +110,9 @@ class MantisClient():
                 notes = issue.get('notes', [])
                 for note in notes:
                     if is_recently_updated(note, timestamp_from):
-                        note_data = extract_fields(note, self.work_notes_fields, "Work Note ")
+                        note_data = extract_fields(note, self.__mantis_config.work_notes_fields, "Work Note ")
                         note_data.update(issue_data)
-                        del note_data['Issue Attachments Path']
-                        temp_attachments = self.get_attachment_details(issue['id'], note['id'])
+                        temp_attachments = self.__get_attachment_details(issue['id'], note['id'])
                         if temp_attachments:
                             note_data['Work Note Attachments Path'] = temp_attachments
                         updated_notes.append(note_data)
@@ -122,11 +121,10 @@ class MantisClient():
     def fetch_recently_updated_issues(self, minutes=1):
         try:
             # Fetch all issues
-            all_issues = self.fetch_all_issues()
-            timestamp_from = get_timestamp_from(self.time_zone, minutes)
+            all_issues = self.__fetch_all_issues()
+            timestamp_from = get_timestamp_from(self.__mantis_config.time_zone, minutes)
             # Filter issues updated within the last specified minutes time window
-            return self.fetch_updated_since_timestamp_from(all_issues, timestamp_from)
+            return self.__fetch_updated_since_timestamp_from(all_issues, timestamp_from)
         except Exception as e:
-            print(e.with_traceback())
             print(f"Failed to fetch recently updated issues: {e}")
             return []

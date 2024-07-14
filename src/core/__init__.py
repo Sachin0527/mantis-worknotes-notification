@@ -1,0 +1,1 @@
+from .mantis_worknotes_notification import MantisWorkNotesNotification
