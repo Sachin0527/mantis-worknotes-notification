@@ -22,10 +22,9 @@ def is_recently_updated(issue, timestamp_from):
         last_updated = datetime.strftime(last_updated, "%Y-%m-%d %H:%M:%S")
         # Check if the issue was updated after timestamp_from
         return last_updated > timestamp_from
-
     except Exception as e:
-        print(f"Failed to parse issue last updated time: {e}")
-        return False
+        msg = f"Failed to parse issue last updated time: {e}"
+        raise Exception(msg)
 
 
 def extract_fields(data, fields_to_extract, prefix):
@@ -64,8 +63,12 @@ class MantisClient:
         return headers
 
     def __get_attachment_details(self, bug_id, bug_note_id=None):
-        attachment_handler = AttachmentHandler(self.__mysql_config, self.__attachment_base_dir)
-        return attachment_handler.fetch_attachments(bug_id, bug_note_id)
+        try:
+            attachment_handler = AttachmentHandler(self.__mysql_config, self.__attachment_base_dir)
+            return attachment_handler.fetch_attachments(bug_id, bug_note_id)
+        except Exception as e:
+            msg = f"Failed to download the attachments for the ticket/worknotes: {e}"
+            raise Exception(msg)
 
     def __fetch_all_issues(self):
         try:
@@ -79,22 +82,20 @@ class MantisClient:
                 page += 1
             return all_issues
         except requests.RequestException as e:
-            print(e)
+            msg = f"Failed in Mantis API Call: {e}"
+            raise Exception(msg)
 
     def __api_call(self, page):
-        try:
-            url = f"{self.__mantis_config.base_url}/api/rest/issues"
-            params = {
-                "project_id": self.__mantis_config.project_id,
-                "page_size": 50,
-                "page": page,
-                "filter_id": self.__mantis_config.filter_id
-            }
-            response = requests.get(url, headers=self.__setup_header(), params=params)
-            response.raise_for_status()
-            return response.json()['issues']
-        except requests.exceptions.RequestException as e:
-            print(e)
+        url = f"{self.__mantis_config.base_url}/api/rest/issues"
+        params = {
+            "project_id": self.__mantis_config.project_id,
+            "page_size": 50,
+            "page": page,
+            "filter_id": self.__mantis_config.filter_id
+        }
+        response = requests.get(url, headers=self.__setup_header(), params=params)
+        response.raise_for_status()
+        return response.json()['issues']
 
     def __fetch_updated_since_timestamp_from(self, issues, timestamp_from):
         updated_issues = []
@@ -126,5 +127,5 @@ class MantisClient:
             # Filter issues updated within the last specified minutes time window
             return self.__fetch_updated_since_timestamp_from(all_issues, timestamp_from)
         except Exception as e:
-            print(f"Failed to fetch recently updated issues: {e}")
-            return []
+            msg = f"Failed to fetch recently updated issues: {e}"
+            raise Exception(msg)

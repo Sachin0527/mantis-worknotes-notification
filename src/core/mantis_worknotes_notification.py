@@ -8,7 +8,8 @@ _config_file = os.path.abspath('src/config/config.yaml')
 
 
 class MantisWorkNotesNotification:
-    def __init__(self):
+    def __init__(self, time_window=60):
+        self.__time_window = time_window
         self.__msmq_client = None
         self.__msmq_config = None
         self.__config_file = _config_file
@@ -24,20 +25,20 @@ class MantisWorkNotesNotification:
         except Exception as e:
             msg = f"Mantis work-notes notification process failed : {e}"
             self.__custom_logger.error(msg)
-            raise Exception(e)
+            raise Exception(msg)
 
     def __get_data_from_mantis_api(self):
         try:
             self.__custom_logger.info("Fetching data from Mantis started")
             config = read_config(self.__config_file)
             mantis_client = MantisClient(config)
-            issues, notes = mantis_client.fetch_recently_updated_issues(120)
+            issues, notes = mantis_client.fetch_recently_updated_issues(self.__time_window)
             self.__custom_logger.info("Fetching data from Mantis completed")
             return issues, notes
         except Exception as e:
             msg = f"Error fetching data from Mantis API: {e}"
             self.__custom_logger.error(msg)
-            raise Exception(e)
+            raise Exception(msg)
 
     def __send_data_to_queue(self, issues, notes):
         try:
@@ -49,16 +50,16 @@ class MantisWorkNotesNotification:
                     self.__send_issues_to_queue(issues)
                 if notes:
                     self.__send_notes_to_queue(notes)
-                self.__custom_logger.info("Sending data to MSMQ ended")
+                self.__custom_logger.info("Sending data to MSMQ ended - Data Successfully sent to queue")
                 return "Data Successfully sent to queue"
             else:
                 msg = "No Data available to be sent to queue"
                 self.__custom_logger.info("Sending data to MSMQ ended - No Data available to be sent to queue")
                 return msg
         except Exception as e:
-            msg = f"Error sending data from MSMQ: {e}"
+            msg = f"Error sending data to MSMQ: {e}"
             self.__custom_logger.error(msg)
-            raise Exception(e)
+            raise Exception(msg)
 
     def __send_issues_to_queue(self, issues_data):
         for issue in issues_data:
