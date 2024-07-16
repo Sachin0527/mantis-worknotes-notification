@@ -5,7 +5,12 @@ mantis:
     time_zone: "Asia/Kolkata"
     issue_fields: "id, summary, description, reporter.name,reporter.email,handler.name,handler.email, status.label, resolution.label, priority.label, severity.label"
     work_notes_fields: "id, reporter.name,reporter.email, text"
-    filter_id: 12
+    page_size: 50
+
+    #FilterId defined in Mantis to skip closed/resolved in response for Mantis API all issues call.
+    #Comment this to fetch updated issues list from DB in given range and then extract only those issues using Mantis API call
+    #filter_id: 12
+
 
 mysql:
     host: "localhost"

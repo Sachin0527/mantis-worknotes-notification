@@ -20,7 +20,9 @@ class MantisConfig:
         self.time_zone = config['time_zone']
         self.issue_fields = [field.strip() for field in config['issue_fields'].split(',')]
         self.work_notes_fields = [field.strip() for field in config['work_notes_fields'].split(',')]
-        self.filter_id = config['filter_id']
+        self.page_size = config['page_size']
+        if 'filter_id' in config:
+            self.filter_id = config['filter_id']
 
 
 # Reads YAML config file from given path.

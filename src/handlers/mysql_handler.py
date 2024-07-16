@@ -20,24 +20,44 @@ def get_attachments_from_db(connection, bug_id, bug_note_id=None):
     return attachments
 
 
-class AttachmentHandler:
+class MysqlHandler:
     def __init__(self, mysql_config, attachment_base_dir):
         self.__config = MysqlConfig(mysql_config)
         self.__attachment_base_dir = attachment_base_dir
 
-    def get_connection(self):
+    def __get_connection(self):
         # Connect to the database using the configuration
         connection = pymysql.connect(
             host=self.__config.host,
             user=self.__config.user,
-            password=self.__config. password,
+            password=self.__config.password,
             database=self.__config.database,
             charset=self.__config.charset,
             cursorclass=pymysql.cursors.DictCursor
         )
         return connection
 
-    def download_attachments(self, attachments, bug_id, bug_note_id):
+    def get_updated_issues_list(self, start_time, end_time):
+        connection = None
+        issue_ids = []
+        try:
+            # Connect to the database
+            connection = self.__get_connection()
+            with connection.cursor() as cursor:
+
+                cursor.callproc('GetUpdatedIssues', (start_time, end_time))
+                results = cursor.fetchall()
+                # Extract values from dictionaries into a list
+                for result in results:
+                    issue_ids.append(result['id'])
+                return issue_ids
+        except pymysql.Error as e:
+            raise Exception(f"An unexpected error occurred while fetching attachment from mysql DB: {e}")
+        finally:
+            if connection:
+                connection.close()
+
+    def __download_attachments(self, attachments, bug_id, bug_note_id):
         results = []
         try:
             for attachment in attachments:
@@ -63,10 +83,10 @@ class AttachmentHandler:
         connection = None
         try:
             # Connect to the database
-            connection = self.get_connection()
+            connection = self.__get_connection()
             attachments = get_attachments_from_db(connection, bug_id, bug_note_id)
             if attachments:
-                results = self.download_attachments(attachments, bug_id, bug_note_id)
+                results = self.__download_attachments(attachments, bug_id, bug_note_id)
                 return results
         except pymysql.Error as e:
             raise Exception(f"An unexpected error occurred while fetching attachment from mysql DB: {e}")

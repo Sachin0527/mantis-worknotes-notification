@@ -2,16 +2,17 @@ import pytz, requests
 from datetime import datetime, timedelta, timezone
 
 from src.config.config import MantisConfig
-from src.handlers.attachment_handler import AttachmentHandler
+from src.handlers.mysql_handler import MysqlHandler
 
 
-def get_timestamp_from(time_zone, minutes):
+def get_time_range(time_zone, minutes):
     current_utc_time = datetime.now(timezone.utc)
     target_timezone = pytz.timezone(time_zone)
     local_datetime = current_utc_time.astimezone(target_timezone)
     timestamp_from = local_datetime - timedelta(minutes=minutes)
     timestamp_from = datetime.strftime(timestamp_from, "%Y-%m-%d %H:%M:%S")
-    return timestamp_from
+    timestamp_to = datetime.strftime(local_datetime, "%Y-%m-%d %H:%M:%S")
+    return timestamp_from, timestamp_to
 
 
 def is_recently_updated(issue, timestamp_from):
@@ -53,6 +54,7 @@ class MantisClient:
         self.__mantis_config = MantisConfig(config['mantis'])
         self.__mysql_config = config['mysql']
         self.__attachment_base_dir = config['attachment_base_dir']
+        self.__mysql_handler = MysqlHandler(self.__mysql_config, self.__attachment_base_dir)
 
     def __setup_header(self):
         # Headers for REST API requests
@@ -62,10 +64,18 @@ class MantisClient:
         }
         return headers
 
+    def __setup_params(self):
+        params = {
+            "project_id": self.__mantis_config.project_id,
+            "page_size": self.__mantis_config.page_size,
+        }
+        if hasattr(self.__mantis_config, 'filter_id') and self.__mantis_config.filter_id:
+            params["filter_id"] = self.__mantis_config.filter_id
+        return params
+
     def __get_attachment_details(self, bug_id, bug_note_id=None):
         try:
-            attachment_handler = AttachmentHandler(self.__mysql_config, self.__attachment_base_dir)
-            return attachment_handler.fetch_attachments(bug_id, bug_note_id)
+            return self.__mysql_handler.fetch_attachments(bug_id, bug_note_id)
         except Exception as e:
             msg = f"Failed to download the attachments for the ticket/worknotes: {e}"
             raise Exception(msg)
@@ -75,7 +85,7 @@ class MantisClient:
             all_issues = []
             page = 1
             while True:
-                issues_on_current_page = self.__api_call(page)
+                issues_on_current_page = self.__api_call("/api/rest/issues", page)
                 if not issues_on_current_page:
                     break
                 all_issues.extend(issues_on_current_page)
@@ -85,19 +95,32 @@ class MantisClient:
             msg = f"Failed in Mantis API Call: {e}"
             raise Exception(msg)
 
-    def __api_call(self, page):
-        url = f"{self.__mantis_config.base_url}/api/rest/issues"
-        params = {
-            "project_id": self.__mantis_config.project_id,
-            "page_size": 50,
-            "page": page,
-            "filter_id": self.__mantis_config.filter_id
-        }
-        response = requests.get(url, headers=self.__setup_header(), params=params)
+    def __fetch_updated_issues_between_range(self, start_time, end_time):
+        try:
+            issues_list = self.__mysql_handler.get_updated_issues_list(start_time, end_time)
+            all_issues = []
+            page = 1
+            for id in issues_list:
+                issues_on_current_page = self.__api_call(f"/api/rest/issues/{id}", page)
+                if not issues_on_current_page:
+                    break
+                all_issues.extend(issues_on_current_page)
+                page += 1
+            return all_issues
+        except requests.RequestException as e:
+            msg = f"Failed in Mantis API Call: {e}"
+            raise Exception(msg)
+
+    def __api_call(self, url_suffix, page):
+        url = f"{self.__mantis_config.base_url}{url_suffix}"
+        headers = self.__setup_header()
+        params = self.__setup_params()
+        params['page'] = page
+        response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
         return response.json()['issues']
 
-    def __fetch_updated_since_timestamp_from(self, issues, timestamp_from):
+    def __fetch_updated_issues_and_worknotes_since_timestamp(self, issues, timestamp_from):
         updated_issues = []
         updated_notes = []
         for issue in issues:
@@ -121,11 +144,13 @@ class MantisClient:
 
     def fetch_recently_updated_issues(self, minutes=1):
         try:
-            # Fetch all issues
-            all_issues = self.__fetch_all_issues()
-            timestamp_from = get_timestamp_from(self.__mantis_config.time_zone, minutes)
-            # Filter issues updated within the last specified minutes time window
-            return self.__fetch_updated_since_timestamp_from(all_issues, timestamp_from)
+            if hasattr(self.__mantis_config, 'filter_id') and self.__mantis_config.filter_id:
+                issues = self.__fetch_all_issues()
+                start_time, _ = get_time_range(self.__mantis_config.time_zone, minutes)
+            else:
+                start_time, end_time = get_time_range(self.__mantis_config.time_zone, minutes)
+                issues = self.__fetch_updated_issues_between_range(start_time, end_time)
+            return self.__fetch_updated_issues_and_worknotes_since_timestamp(issues, start_time)
         except Exception as e:
             msg = f"Failed to fetch recently updated issues: {e}"
             raise Exception(msg)
