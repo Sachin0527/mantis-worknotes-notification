@@ -1,10 +1,12 @@
 from src import MantisWorkNotesNotification
 
 
+# Main method to trigger the process.
+# Time_window is the time in minutes window for issues/notes extraction
 def main():
     try:
-        m_w_p = MantisWorkNotesNotification(time_window=120)
-        results = m_w_p.mantis_worknotes_notification()
+        mantis_notification  = MantisWorkNotesNotification(time_window=1)
+        results = mantis_notification.mantis_worknotes_notification()
         print(results)
     except Exception as ex:
         print(ex)

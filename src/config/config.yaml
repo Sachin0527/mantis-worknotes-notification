@@ -7,11 +7,6 @@ mantis:
     work_notes_fields: "id, reporter.name,reporter.email, text"
     page_size: 50
 
-    #FilterId defined in Mantis to skip closed/resolved in response for Mantis API all issues call.
-    #Comment this to fetch updated issues list from DB in given range and then extract only those issues using Mantis API call
-    #filter_id: 12
-
-
 mysql:
     host: "localhost"
     user: "root"
@@ -28,4 +23,6 @@ logging:
     logging_format: '%(asctime)s :: %(levelname)s :: %(message)s :: Message Source:- file-"%(module)s" & method-"%(funcName)s"'
 
 attachment_base_dir: "attachments"
+issue_label_formatter: 'Issue Id - {Issue Id} :: {Issue Description}'
+note_label_formatter: 'Issue Id - {Issue Id} :: {Issue Description} :: {Work Note Text}'
 

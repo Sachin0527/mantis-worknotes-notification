@@ -1,1 +1,1 @@
-from .config import MantisConfig, MysqlConfig, read_config
+from .config import MantisConfig, MysqlConfig, MsmqConfig, read_config

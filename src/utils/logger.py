@@ -13,6 +13,7 @@ class CustomLogger:
             cls._instance._initialize_logger(*args, **kwargs)
         return cls._instance
 
+    # Initialize the logger with logging file, level, format etc
     def _initialize_logger(self, config_file):
         self.config = read_config(config_file,'logging')
         self.log_file = self.config['logging_file']
@@ -32,5 +33,6 @@ class CustomLogger:
             # Add handlers to the logger
             self.logger.addHandler(file_handler)
 
+    # returns the initialized logger
     def get_logger(self):
         return self.logger

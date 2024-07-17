@@ -11,6 +11,12 @@ class MysqlConfig:
         self.charset = config['charset']
 
 
+# Config class to hold the mandatory MSMQ variables
+class MsmqConfig:
+    def __init__(self, config):
+        self.queue = config['queue']
+
+
 # Config class to hold the mandatory Mantis variables
 class MantisConfig:
     def __init__(self, config):
@@ -21,8 +27,6 @@ class MantisConfig:
         self.issue_fields = [field.strip() for field in config['issue_fields'].split(',')]
         self.work_notes_fields = [field.strip() for field in config['work_notes_fields'].split(',')]
         self.page_size = config['page_size']
-        if 'filter_id' in config:
-            self.filter_id = config['filter_id']
 
 
 # Reads YAML config file from given path.

@@ -4,6 +4,7 @@ from PIL import Image
 from src.config.config import MysqlConfig
 
 
+# Method to get attachments details from the mantis database for the bug id or bug note id
 def get_attachments_from_db(connection, bug_id, bug_note_id=None):
     # SQL query to retrieve attachment information
     with connection.cursor() as cursor:
@@ -25,6 +26,7 @@ class MysqlHandler:
         self.__config = MysqlConfig(mysql_config)
         self.__attachment_base_dir = attachment_base_dir
 
+    # Get the database connection settings
     def __get_connection(self):
         # Connect to the database using the configuration
         connection = pymysql.connect(
@@ -37,7 +39,8 @@ class MysqlHandler:
         )
         return connection
 
-    def get_updated_issues_list(self, start_time, end_time):
+    # Method to get the list of updated issues ids for the given start and end timestamps
+    def get_updated_issues_ids_list(self, start_time, end_time):
         connection = None
         issue_ids = []
         try:
@@ -57,6 +60,7 @@ class MysqlHandler:
             if connection:
                 connection.close()
 
+    # Method to download the attachments for bug id and bug note id. Also returns the path of downloaded files
     def __download_attachments(self, attachments, bug_id, bug_note_id):
         results = []
         try:
@@ -79,6 +83,7 @@ class MysqlHandler:
         except IOError as e:
             raise Exception(f"An error occurred while downloading attachments: {e}")
 
+    # Main Method of the class
     def fetch_attachments(self, bug_id, bug_note_id=None):
         connection = None
         try:

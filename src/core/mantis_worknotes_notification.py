@@ -1,8 +1,8 @@
 import os, json
 from src.config.config import read_config
 from src.utils.logger import CustomLogger
-from src.handlers.msmq_handler import MSMQClient
-from src.handlers.mantis_handler import MantisClient
+from src.handlers.msmq_handler import MsmqHandler
+from src.handlers.mantis_handler import MantisHandler
 
 _config_file = os.path.abspath('src/config/config.yaml')
 
@@ -11,10 +11,11 @@ class MantisWorkNotesNotification:
     def __init__(self, time_window=60):
         self.__time_window = time_window
         self.__msmq_client = None
-        self.__msmq_config = None
         self.__config_file = _config_file
+        self.__config = read_config(self.__config_file)
         self.__custom_logger = CustomLogger(self.__config_file).get_logger()
 
+    # Main method of class to start the process.
     def mantis_worknotes_notification(self):
         try:
             self.__custom_logger.info("Mantis work-notes notification process started")
@@ -27,11 +28,12 @@ class MantisWorkNotesNotification:
             self.__custom_logger.error(msg)
             raise Exception(msg)
 
+    # Method to load mantis config and
+    # invoke Mantis API call using Mantis handler to fetch updated issues in given time window
     def __get_data_from_mantis_api(self):
         try:
             self.__custom_logger.info("Fetching data from Mantis started")
-            config = read_config(self.__config_file)
-            mantis_client = MantisClient(config)
+            mantis_client = MantisHandler(self.__config)
             issues, notes = mantis_client.fetch_recently_updated_issues(self.__time_window)
             self.__custom_logger.info("Fetching data from Mantis completed")
             return issues, notes
@@ -40,11 +42,11 @@ class MantisWorkNotesNotification:
             self.__custom_logger.error(msg)
             raise Exception(msg)
 
+    # Method to load MSMQ config and send data to MSMQ using MSMQ handler
     def __send_data_to_queue(self, issues, notes):
         try:
             self.__custom_logger.info("Sending data to MSMQ started")
-            self.__msmq_config = read_config(self.__config_file, 'msmq')
-            self.__msmq_client = MSMQClient(self.__msmq_config)
+            self.__msmq_client = MsmqHandler(self.__config['msmq'])
             if issues or notes:
                 if issues:
                     self.__send_issues_to_queue(issues)
@@ -61,16 +63,18 @@ class MantisWorkNotesNotification:
             self.__custom_logger.error(msg)
             raise Exception(msg)
 
+    # Method to send updated issue to the queue
     def __send_issues_to_queue(self, issues_data):
         for issue in issues_data:
-            label = f"Issue Id - {issue['Issue Id']} :: {issue['Issue Description']}"
+            label = self.__config['issue_label_formatter'].format(**issue)
             body = json.dumps(issue, indent=4)
             self.__msmq_client.send_message(label, body)
             self.__custom_logger.info(f"Sent issue to queue: {label}")
 
+    # Method to send updated work notes to the queue
     def __send_notes_to_queue(self, notes_data):
         for note in notes_data:
-            label = f"Issue Id - {note['Issue Id']} :: {note['Issue Description']} :: {note['Work Note Text']}"
+            label = self.__config['note_label_formatter'].format(**note)
             body = json.dumps(note, indent=4)
             self.__msmq_client.send_message(label, body)
-            self.__custom_logger.info(f"Sent issue to queue: {label}")
+            self.__custom_logger.info(f"Sent work note to queue: {label}")
