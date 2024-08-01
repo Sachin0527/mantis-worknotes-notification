@@ -1,3 +1,5 @@
+import getpass
+
 import yaml
 
 
@@ -27,6 +29,16 @@ class MantisConfig:
         self.issue_fields = [field.strip() for field in config['issue_fields'].split(',')]
         self.work_notes_fields = [field.strip() for field in config['work_notes_fields'].split(',')]
         self.page_size = config['page_size']
+
+# Config class to hold the mandatory Email SMTP variables
+class EmailConfig:
+
+    def __int__(self,config):
+        self.host = config['host']
+        self.port =config['port']
+        self.from_email =config['from_email']
+        self.to_email=config['to_email']
+        self.password=config['password']
 
 
 # Reads YAML config file from given path.

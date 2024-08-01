@@ -1,8 +1,10 @@
-import os, json
+import os
+import json
 from src.config.config import read_config
 from src.utils.logger import CustomLogger
 from src.handlers.msmq_handler import MsmqHandler
 from src.handlers.mantis_handler import MantisHandler
+from src.mails.email_sender import EmailSender
 
 _config_file = os.path.abspath('src/config/config.yaml')
 
@@ -15,7 +17,6 @@ class MantisWorkNotesNotification:
         self.__config = read_config(self.__config_file)
         self.__custom_logger = CustomLogger(self.__config_file).get_logger()
 
-    # Main method of class to start the process.
     def mantis_worknotes_notification(self):
         try:
             self.__custom_logger.info("Mantis work-notes notification process started")
@@ -28,8 +29,6 @@ class MantisWorkNotesNotification:
             self.__custom_logger.error(msg)
             raise Exception(msg)
 
-    # Method to load mantis config and
-    # invoke Mantis API call using Mantis handler to fetch updated issues in given time window
     def __get_data_from_mantis_api(self):
         try:
             self.__custom_logger.info("Fetching data from Mantis started")
@@ -42,7 +41,6 @@ class MantisWorkNotesNotification:
             self.__custom_logger.error(msg)
             raise Exception(msg)
 
-    # Method to load MSMQ config and send data to MSMQ using MSMQ handler
     def __send_data_to_queue(self, issues, notes):
         try:
             self.__custom_logger.info("Sending data to MSMQ started")
@@ -63,7 +61,6 @@ class MantisWorkNotesNotification:
             self.__custom_logger.error(msg)
             raise Exception(msg)
 
-    # Method to send updated issue to the queue
     def __send_issues_to_queue(self, issues_data):
         for issue in issues_data:
             label = self.__config['issue_label_formatter'].format(**issue)
@@ -71,10 +68,48 @@ class MantisWorkNotesNotification:
             self.__msmq_client.send_message(label, body)
             self.__custom_logger.info(f"Sent issue to queue: {label}")
 
-    # Method to send updated work notes to the queue
     def __send_notes_to_queue(self, notes_data):
         for note in notes_data:
             label = self.__config['note_label_formatter'].format(**note)
             body = json.dumps(note, indent=4)
             self.__msmq_client.send_message(label, body)
             self.__custom_logger.info(f"Sent work note to queue: {label}")
+
+    def send_all_messages_in_queue(self):
+        try:
+            self.__custom_logger.info("Reading all messages from MSMQ queue and sending emails started")
+            msmq_handler = MsmqHandler(self.__config['msmq'])
+
+            while True:
+                # Try to receive a message from the queue
+                message = msmq_handler.receive_message()
+
+                # If no message is found, break the loop
+                if not message:
+                    break
+
+                subject, body = message
+
+                # Send email to the default recipient
+                EmailSender.email_send(subject, body, self.__config)
+
+                # Extract the assigned person's email from the message body
+                message_data = json.loads(body)
+                assigned_email = message_data.get('assigned_to_email')
+
+                # If there's an assigned person, send the email to them as well
+                if assigned_email:
+                    EmailSender.email_send(subject, body, self.__config, to_email=assigned_email)
+
+                # Log success
+                self.__custom_logger.info(f"Email sent successfully for message: {subject}")
+
+                # Delete the message from the queue after it's sent
+                msmq_handler.delete_message(subject)
+
+            self.__custom_logger.info("All messages processed successfully")
+
+        except Exception as e:
+            msg = f"Error processing MSMQ queue: {e}"
+            self.__custom_logger.error(msg)
+            raise Exception(msg)
