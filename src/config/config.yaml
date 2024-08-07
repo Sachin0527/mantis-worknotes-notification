@@ -1,6 +1,6 @@
 mantis:
-    base_url: "http://localhost:8080/mantis"
-    api_token: "VoZ4d_uyq7fX1mv5DZ4zqhyJbCL3peMv"
+    base_url: "http://localhost:8086/mantis"
+    api_token: "wd3tBpvAmpVRfqM8_nPg7T3cxxBw4KMs"
     project_id: 1
     time_zone: "Asia/Kolkata"
     issue_fields: "id, summary, description, reporter.name,reporter.email,handler.name,handler.email, status.label, resolution.label, priority.label, severity.label"
@@ -10,12 +10,12 @@ mantis:
 mysql:
     host: "localhost"
     user: "root"
-    password: ""
+    password: "root"
     database: "bugtracker"
     charset: "utf8mb4"
 
 msmq:
-    queue: ".\\Private$\\mantis_notification_queue"
+    queue: ".\\Private$\\myqueue"
 
 logging:
     logging_file: 'logs/mantis_worknotes_notification.log'
@@ -26,8 +26,8 @@ smtp:
     host: "smtp-mail.outlook.com"
     port: 587
     from_email : "sachinkumarmantisbt@outlook.com"
-    to_email: "karan11.gupta@nttdata.com"
-    password : "Sachin@12345"
+    to_email: "sachinkumar27demon@gmail.com"
+    password : ""
 
 attachment_base_dir: "attachments"
 issue_label_formatter: 'Issue Id - {Issue Id} :: {Issue Description}'
